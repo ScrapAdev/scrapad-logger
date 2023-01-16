@@ -1,4 +1,4 @@
-package main
+package logger
 
 import (
 	"fmt"
@@ -17,16 +17,12 @@ func (l *Logger) formatMessage(level string, message string) {
 }
 
 func (l *Logger) formatInfoMessage(level string, message string) {
-	timestamp := aws.Time(time.Now().UTC()).UnixMilli()
-	l.putLogEvent(timestamp, message, level)
-}
-
-func (l *Logger) formatErrorMessage(level string, message string) {
 	pc := make([]uintptr, 15)
 	n := runtime.Callers(2, pc)
 	frames := runtime.CallersFrames(pc[:n])
 	frame, _ := frames.Next()
 	timestamp := aws.Time(time.Now().UTC()).UnixMilli()
-	logMessage := fmt.Sprintf(" [%d]:%s %s '%s:%d %s' - %s\n", timestamp, strings.Split(frame.Function, "/")[2], strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
+	//logMessage := fmt.Sprintf(" [%d]:%s %s '%s:%d %s' - %s\n", timestamp, strings.Split(frame.Function, "/")[2], strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
+	logMessage := fmt.Sprintf("%s(%s) [%d] %s '%s:%d %s' - %s\n", strings.Split(frame.Function, "/")[2], "192.168.0.1", timestamp, strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
 	l.putLogEvent(timestamp, logMessage, level)
 }
