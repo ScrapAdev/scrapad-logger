@@ -23,7 +23,7 @@ func main() {
 		fmt.Println("Error loading .env file")
 	}
 	l := New()
-	l.Info("Segundo test")
+	l.Error("ERROR")
 }
 
 func New() *Logger {

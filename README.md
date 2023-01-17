@@ -1,7 +1,7 @@
 # Scrapad Logger
 
 ## Message format
-### Log | Debug | Error
+### Info | Debug | Error
 1. IP máquina
 2. Microservicio
 3. Timestamp
