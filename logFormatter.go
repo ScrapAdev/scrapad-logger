@@ -35,6 +35,7 @@ func (l *Logger) formatMessage(level string, message string) {
 func (l *Logger) formatTraceMessage(level string, message string) {
 	timestamp := aws.Time(time.Now().UTC())
 	logMessage := fmt.Sprintf("%s:[%s] %s %d '%s'\n", "TODO", timestamp.String(), strings.ToUpper(level), 0, message)
+	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
 
@@ -45,5 +46,6 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	frame, _ := frames.Next()
 	timestamp := aws.Time(time.Now().UTC())
 	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", strings.Split(frame.Function, "/")[0], timestamp.String(), strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
+	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
