@@ -9,6 +9,22 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 )
 
+func (l *Logger) Debug(txt string) {
+	l.formatMessage("debug", txt)
+}
+
+func (l *Logger) Error(txt string) {
+	l.formatMessage("error", txt)
+}
+
+func (l *Logger) Info(txt string) {
+	l.formatMessage("info", txt)
+}
+
+func (l *Logger) Trace(txt string) {
+	l.formatMessage("trace", txt)
+}
+
 func (l *Logger) formatMessage(level string, message string) {
 	if level == "trace" {
 		l.formatTraceMessage(level, message)

@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
-	"github.com/joho/godotenv"
 )
 
 type Logger struct {
@@ -17,14 +16,14 @@ type Logger struct {
 	svc          cloudwatchlogs.Client
 }
 
-func main() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-	l := New()
-	l.Error("ERROR")
-}
+// func main() {
+// 	err := godotenv.Load()
+// 	if err != nil {
+// 		fmt.Println("Error loading .env file")
+// 	}
+// 	l := New()
+// 	l.Error("ERROR")
+// }
 
 func New() *Logger {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("AWS_REGION")))
@@ -37,18 +36,6 @@ func New() *Logger {
 		logGroupName: os.Getenv("AWS_GROUP_NAME"),
 		svc:          *svc,
 	}
-}
-
-func (l *Logger) Debug(txt string) {
-	l.formatMessage("debug", txt)
-}
-
-func (l *Logger) Error(txt string) {
-	l.formatMessage("error", txt)
-}
-
-func (l *Logger) Info(txt string) {
-	l.formatMessage("info", txt)
 }
 
 func (l *Logger) putLogEvent(timestamp int64, msg string, level string) error {
