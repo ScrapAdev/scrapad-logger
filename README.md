@@ -1,29 +1,35 @@
-# Scrapad Logger
+# ScrapAd Logger
+
+ScrapAd logger module, to send logs from Go to AWS CloudWatch API
+
+## Log Streams
+1. Info
+2. Error
+3. Debug
+4. Trace
 
 ## Message format
-### Info | Debug | Error
-1. IP máquina
-2. Microservicio
-3. Timestamp
-4. Level
-5. File Path
-6. Method name
-7. Message
+### Info / Debug / Error
+1. Microservice name
+2. Timestamp
+3. Level
+4. File Path
+5. Method name
+6. Message
 
 Example:
 ```shell
-scrapad-query:(192.168.0.1) [2023-01-16T12:42:29.148+01:00] INFO 'main/example/go.go:100' MethodTest - message example
+scrapad-microservice:[2023-01-16T12:42:29.148+01:00] INFO 'main/example/go.go:100' MethodTest - message example
 ```
 ### Trace
-1. IP máquina
-2. Microservicio
-3. Timestamp
-4. Level
-5. HTTP Code
-6. URL
-7. Browser Info
-8. User IP
+1. Microservice
+2. Timestamp
+3. Level
+4. HTTP Code
+5. URL
+6. Browser Info
+7. User IP
 
 ```shell
-scrapad-query:(192.168.0.1) [2023-01-16T12:42:29.148+01:00] TRACE 200 'Mozilla/5.0 (Macintosh)' "83.122.11.0"
+scrapad-microservice:[2023-01-16T12:42:29.148+01:00] TRACE 200 'Mozilla/5.0 (Macintosh)' "192.168.0.1"
 ```
