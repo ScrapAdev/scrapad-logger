@@ -26,6 +26,7 @@ func (l *Logger) Trace(txt string) {
 }
 
 func (l *Logger) formatMessage(level string, message string) {
+	fmt.Println("Logging...", message)
 	if level == "trace" {
 		l.formatTraceMessage(level, message)
 	}
@@ -39,7 +40,11 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	frame, _ := frames.Next()
 	timestamp := aws.Time(time.Now().UTC())
 	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", strings.Split(frame.Function, "/")[2], timestamp.String(), strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
-	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
+	fmt.Println(logMessage)
+	err := l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func (l *Logger) formatTraceMessage(level string, message string) {
