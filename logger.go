@@ -85,6 +85,12 @@ func (l *Logger) formatMessage(level string, message string) {
 	l.formatOtherMessage(level, message)
 }
 
+func (l *Logger) formatTraceMessage(level string, message string) {
+	timestamp := aws.Time(time.Now().UTC())
+	logMessage := fmt.Sprintf("%s:[%s] %s %d '%s'\n", "TODO", timestamp.String(), strings.ToUpper(level), 0, message)
+	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
+}
+
 func (l *Logger) formatOtherMessage(level string, message string) {
 	pc := make([]uintptr, 15)
 	n := runtime.Callers(2, pc)
@@ -97,10 +103,4 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-}
-
-func (l *Logger) formatTraceMessage(level string, message string) {
-	timestamp := aws.Time(time.Now().UTC())
-	logMessage := fmt.Sprintf("%s:[%s] %s %d '%s'\n", "TODO", timestamp.String(), strings.ToUpper(level), 0, message)
-	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
