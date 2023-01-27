@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 )
 
 func (l *Logger) Debug(txt string) {
+	l.initframes()
 	l.formatMessage("debug", txt)
 }
 
@@ -18,6 +20,7 @@ func (l *Logger) Error(txt string) {
 }
 
 func (l *Logger) Info(txt string) {
+	l.initframes()
 	l.formatMessage("info", txt)
 }
 
@@ -49,4 +52,13 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
 	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
+}
+
+func (l *Logger) initframes() {
+	pc := make([]uintptr, 15)
+	n := runtime.Callers(2, pc)
+	l.frames = runtime.CallersFrames(pc[:n])
+	l.frames.Next()
+	l.frame, _ = l.frames.Next()
+	l.frames = runtime.CallersFrames(pc[:n])
 }

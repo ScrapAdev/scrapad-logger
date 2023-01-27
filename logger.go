@@ -50,19 +50,3 @@ func (l *Logger) putLogEvent(timestamp int64, msg string, level string) error {
 	}
 	return err
 }
-
-func (l *Logger) initframes() {
-	pc := make([]uintptr, 15)
-	n := runtime.Callers(2, pc)
-	l.frames = runtime.CallersFrames(pc[:n])
-	l.frames.Next()
-	l.frame, _ = l.frames.Next()
-	l.frames = runtime.CallersFrames(pc[:n])
-	for {
-		frame, more := l.frames.Next()
-		if !more {
-			break
-		}
-		fmt.Println("Function:", frame.Function)
-	}
-}
