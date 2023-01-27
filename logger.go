@@ -94,7 +94,7 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 
 func (l *Logger) initframes() {
 	pc := make([]uintptr, 15)
-	n := runtime.Callers(2, pc)
+	n := runtime.Callers(1, pc)
 	l.frames = runtime.CallersFrames(pc[:n])
 	l.frame, _ = l.frames.Next()
 	for {
