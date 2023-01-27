@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -51,45 +49,6 @@ func (l *Logger) putLogEvent(timestamp int64, msg string, level string) error {
 		return err
 	}
 	return err
-}
-
-func (l *Logger) Debug(txt string) {
-	l.formatMessage("debug", txt)
-}
-
-func (l *Logger) Error(txt string) {
-	l.initframes()
-	l.formatMessage("error", txt)
-}
-
-func (l *Logger) Info(txt string) {
-	l.formatMessage("info", txt)
-}
-
-func (l *Logger) Trace(txt string) {
-	l.formatMessage("trace", txt)
-}
-
-func (l *Logger) formatMessage(level string, message string) {
-	if level == "trace" {
-		l.formatTraceMessage(level, message)
-	}
-	l.formatOtherMessage(level, message)
-}
-
-func (l *Logger) formatTraceMessage(level string, message string) {
-	timestamp := aws.Time(time.Now().UTC())
-	logMessage := fmt.Sprintf("%s:[%s] %s %d '%s'\n", "TODO", timestamp.String(), strings.ToUpper(level), 0, message)
-	fmt.Println(logMessage)
-	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
-}
-
-func (l *Logger) formatOtherMessage(level string, message string) {
-	timestamp := aws.Time(time.Now().UTC())
-	service := "1" //strings.Split(strings.Split(l.frame.Function, "/")[2], ".")[0]
-	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
-	fmt.Println(logMessage)
-	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
 
 func (l *Logger) initframes() {
