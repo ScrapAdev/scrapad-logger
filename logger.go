@@ -83,11 +83,12 @@ func (l *Logger) formatTraceMessage(level string, message string) {
 
 func (l *Logger) formatOtherMessage(level string, message string) {
 	pc := make([]uintptr, 15)
-	n := runtime.Callers(2, pc)
+	n := runtime.Callers(1, pc)
 	frames := runtime.CallersFrames(pc[:n])
 	frame, _ := frames.Next()
 	timestamp := aws.Time(time.Now().UTC())
-	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", strings.Split(frame.Function, "/")[2], timestamp.String(), strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
+	service := strings.Split(strings.Split(frame.Function, "/")[2], ".")[0]
+	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
 	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
