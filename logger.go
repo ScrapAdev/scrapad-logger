@@ -17,6 +17,8 @@ import (
 type Logger struct {
 	logGroupName string
 	svc          cloudwatchlogs.Client
+	frames       *runtime.Frames
+	frame        runtime.Frame
 }
 
 func New() *Logger {
@@ -56,6 +58,7 @@ func (l *Logger) Debug(txt string) {
 }
 
 func (l *Logger) Error(txt string) {
+	l.initframes()
 	l.formatMessage("error", txt)
 }
 
@@ -82,13 +85,16 @@ func (l *Logger) formatTraceMessage(level string, message string) {
 }
 
 func (l *Logger) formatOtherMessage(level string, message string) {
-	pc := make([]uintptr, 15)
-	n := runtime.Callers(1, pc)
-	frames := runtime.CallersFrames(pc[:n])
-	frame, _ := frames.Next()
 	timestamp := aws.Time(time.Now().UTC())
-	service := strings.Split(strings.Split(frame.Function, "/")[2], ".")[0]
-	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), frame.File, frame.Line, frame.Function[strings.LastIndex(frame.Function, ".")+1:], message)
+	service := strings.Split(strings.Split(l.frame.Function, "/")[2], ".")[0]
+	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
 	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
+}
+
+func (l *Logger) initframes() {
+	pc := make([]uintptr, 15)
+	n := runtime.Callers(1, pc)
+	l.frames = runtime.CallersFrames(pc[:n])
+	l.frame, _ = l.frames.Next()
 }
