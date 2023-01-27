@@ -58,7 +58,11 @@ func (l *Logger) Debug(txt string) {
 }
 
 func (l *Logger) Error(txt string) {
-	l.initframes()
+	pc := make([]uintptr, 15)
+	n := runtime.Callers(3, pc)
+	l.frames = runtime.CallersFrames(pc[:n])
+	fmt.Printf("%+v\n", l.frames)
+	l.frame, _ = l.frames.Next()
 	l.formatMessage("error", txt)
 }
 
@@ -92,9 +96,9 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
 
-func (l *Logger) initframes() {
-	pc := make([]uintptr, 15)
-	n := runtime.Callers(3, pc)
-	l.frames = runtime.CallersFrames(pc[:n])
-	l.frame, _ = l.frames.Next()
-}
+// func (l *Logger) initframes() {
+// 	pc := make([]uintptr, 15)
+// 	n := runtime.Callers(3, pc)
+// 	l.frames = runtime.CallersFrames(pc[:n])
+// 	l.frame, _ = l.frames.Next()
+// }
