@@ -49,7 +49,7 @@ func (l *Logger) formatOtherMessage(level string, message string) {
 	if len(repo) > 1 {
 		service = strings.Split(repo[2], ".")[0]
 	}
-	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.String(), strings.ToUpper(level), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
+	logMessage := fmt.Sprintf("%s:[%s] %s '%s:%d %s' - %s\n", service, timestamp.Format("2006-01-02 15:04:05"), strings.ToUpper(level), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
 	fmt.Println(logMessage)
 	l.putLogEvent(timestamp.UnixMilli(), logMessage, level)
 }
