@@ -12,18 +12,18 @@ import (
 
 func TestNewLogger(t *testing.T) {
 	uuidStr := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-	logger, err := New(uuidStr)
+	logger, err := NewWithID(uuidStr)
 	assert.NoError(t, err)
 	assert.NotNil(t, logger)
 
 	invalidUUIDStr := "invalid-uuid"
-	_, err = New(invalidUUIDStr)
+	_, err = NewWithID(invalidUUIDStr)
 	assert.Error(t, err)
 }
 
 func TestLogger_FormatMessage(t *testing.T) {
 	uuidStr := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-	logger, err := New(uuidStr)
+	logger, err := NewWithID(uuidStr)
 	assert.NoError(t, err)
 
 	logLevel := "debug"
@@ -40,7 +40,7 @@ func TestLogger_FormatMessage(t *testing.T) {
 
 func TestLogger_FormatTraceMessage(t *testing.T) {
 	uuidStr := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-	logger, err := New(uuidStr)
+	logger, err := NewWithID(uuidStr)
 	assert.NoError(t, err)
 
 	logLevel := "trace"
@@ -57,7 +57,7 @@ func TestLogger_FormatTraceMessage(t *testing.T) {
 
 func TestLogger_InitFrames(t *testing.T) {
 	uuidStr := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-	logger, err := New(uuidStr)
+	logger, err := NewWithID(uuidStr)
 	assert.NoError(t, err)
 
 	logger.initFrames()
@@ -71,7 +71,7 @@ func TestLogger_InitFrames(t *testing.T) {
 
 func TestLogger_AllMethods(t *testing.T) {
 	uuidStr := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-	logger, err := New(uuidStr)
+	logger, err := NewWithID(uuidStr)
 	assert.NoError(t, err)
 
 	logger.Debug("This is a debug message")

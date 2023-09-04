@@ -10,6 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
+var (
+	CALLER_SKIP  = 3
+	CALLER_DEPTH = 32
+)
+
 func (l *Logger) Debug(txt string) {
 	l.formatMessage("debug", txt)
 }
@@ -53,9 +58,8 @@ func (l *Logger) parseMessageInfo() (*time.Time, string) {
 
 func (l *Logger) printCallStack() {
 	debug.PrintStack()
-	const depth = 32
-	callers := make([]uintptr, depth)
-	n := runtime.Callers(2, callers)
+	callers := make([]uintptr, CALLER_DEPTH)
+	n := runtime.Callers(CALLER_SKIP, callers)
 	frames := runtime.CallersFrames(callers[:n])
 	for frame, more := frames.Next(); more; frame, more = frames.Next() {
 		fmt.Printf("+ %s:%d %s\n", frame.File, frame.Line, frame.Function)
@@ -63,8 +67,8 @@ func (l *Logger) printCallStack() {
 }
 
 func (l *Logger) initFrames() {
-	pc := make([]uintptr, 15)
-	n := runtime.Callers(2, pc)
+	pc := make([]uintptr, CALLER_DEPTH)
+	n := runtime.Callers(CALLER_SKIP, pc)
 	l.frames = runtime.CallersFrames(pc[:n])
 	l.frames.Next()
 	l.frame, _ = l.frames.Next()

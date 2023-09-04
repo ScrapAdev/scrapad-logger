@@ -14,7 +14,17 @@ type Logger struct {
 	uuidRequest uuid.UUID
 }
 
-func New(uuidRequest string) (*Logger, error) {
+func New() (*Logger, error) {
+	awsCloudwatch, err := helpers.NewAWSCloudwatch()
+	if err != nil {
+		return nil, err
+	}
+	return &Logger{
+		cloudwatch: *awsCloudwatch,
+	}, nil
+}
+
+func NewWithID(uuidRequest string) (*Logger, error) {
 	awsCloudwatch, err := helpers.NewAWSCloudwatch()
 	if err != nil {
 		return nil, err
