@@ -34,7 +34,7 @@ func (l *Logger) Trace(txt string) {
 func (l *Logger) formatMessage(level string, message string) {
 	l.initFrames()
 	timestamp, service := l.parseMessageInfo()
-	logMessage := fmt.Sprintf("%s:[%s] %s %s %s '%s:%d %s' - %s\n", service, timestamp.Format("2006-01-02 15:04:05"), strings.ToUpper(level), l.uuidRequest.String(), l.uuidRequest, l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
+	logMessage := fmt.Sprintf("%s:[%s] %s %s '%s:%d %s' - %s\n", service, timestamp.Format("2006-01-02 15:04:05"), strings.ToUpper(level), l.uuidRequest.String(), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
 	fmt.Println(logMessage)
 	l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), logMessage, level)
 }

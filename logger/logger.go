@@ -38,3 +38,7 @@ func NewWithID(uuidRequest string) (*Logger, error) {
 		uuidRequest: uuid,
 	}, nil
 }
+
+func (l *Logger) SetRequestID(uuid uuid.UUID) {
+	l.uuidRequest = uuid
+}
