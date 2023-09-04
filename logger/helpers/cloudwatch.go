@@ -1,10 +1,9 @@
-package logger
+package helpers
 
 import (
 	"context"
 	"fmt"
 	"os"
-	"runtime"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -12,27 +11,25 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 )
 
-type Logger struct {
+type AWSCloudwatch struct {
+	client       *cloudwatchlogs.Client
 	logGroupName string
-	svc          cloudwatchlogs.Client
-	frames       *runtime.Frames
-	frame        runtime.Frame
 }
 
-func New() *Logger {
+func NewAWSCloudwatch() (*AWSCloudwatch, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
-		fmt.Println("Error creating AWS config:", err)
+		return nil, fmt.Errorf("Error creating AWS config: %v", err)
 	}
 
 	svc := cloudwatchlogs.NewFromConfig(cfg)
-	return &Logger{
+	return &AWSCloudwatch{
+		client:       svc,
 		logGroupName: os.Getenv("AWS_GROUP_NAME"),
-		svc:          *svc,
-	}
+	}, nil
 }
 
-func (l *Logger) putLogEvent(timestamp int64, msg string, level string) error {
+func (cloudwatch *AWSCloudwatch) PutLogEvent(timestamp int64, msg string, level string) error {
 	inputLog := types.InputLogEvent{
 		Message:   aws.String(msg),
 		Timestamp: &timestamp,
@@ -40,13 +37,12 @@ func (l *Logger) putLogEvent(timestamp int64, msg string, level string) error {
 	inputLogEvent := []types.InputLogEvent{inputLog}
 	params := cloudwatchlogs.PutLogEventsInput{
 		LogEvents:     inputLogEvent,
-		LogGroupName:  aws.String(l.logGroupName),
+		LogGroupName:  aws.String(cloudwatch.logGroupName),
 		LogStreamName: aws.String(level),
 	}
-	_, err := l.svc.PutLogEvents(context.Background(), &params)
+	_, err := cloudwatch.client.PutLogEvents(context.Background(), &params)
 	if err != nil {
-		fmt.Println("Failed to send log request", err)
-		return err
+		return fmt.Errorf("Failed to send log request: %v", err)
 	}
-	return err
+	return nil
 }
