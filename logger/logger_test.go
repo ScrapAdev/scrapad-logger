@@ -30,7 +30,7 @@ func TestLogger_FormatMessage(t *testing.T) {
 	logMessage := "Test log message"
 
 	captured := captureStdout(func() {
-		logger.formatMessage(logLevel, logMessage)
+		logger.formatLogMessage(logLevel, logMessage)
 	})
 
 	assert.Contains(t, captured, strings.ToUpper(logLevel))
@@ -47,7 +47,7 @@ func TestLogger_FormatTraceMessage(t *testing.T) {
 	logMessage := "Test log message with trace"
 
 	captured := captureStdout(func() {
-		logger.formatTraceMessage(logLevel, logMessage)
+		logger.formatLogMessage(logLevel, logMessage)
 	})
 
 	assert.Contains(t, captured, strings.ToUpper(logLevel))
