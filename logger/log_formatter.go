@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -16,19 +17,31 @@ var (
 )
 
 func (l *Logger) Debug(txt string) {
-	l.formatLogMessage("debug", txt)
+	level := "debug"
+	if l.isLogLevelActivated(level) {
+		l.formatLogMessage(level, txt)
+	}
 }
 
 func (l *Logger) Error(txt string) {
-	l.formatLogMessage("error", txt)
+	level := "error"
+	if l.isLogLevelActivated(level) {
+		l.formatLogMessage(level, txt)
+	}
 }
 
 func (l *Logger) Info(txt string) {
-	l.formatLogMessage("info", txt)
+	level := "info"
+	if l.isLogLevelActivated(level) {
+		l.formatLogMessage(level, txt)
+	}
 }
 
 func (l *Logger) Trace(txt string) {
-	l.formatLogMessage("trace", txt)
+	level := "trace"
+	if l.isLogLevelActivated(level) {
+		l.formatLogMessage(level, txt)
+	}
 }
 
 func (l *Logger) formatLogMessage(level, message string) string {
@@ -46,6 +59,16 @@ func (l *Logger) formatLogMessage(level, message string) string {
 	l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), logMessage, level)
 
 	return logMessage
+}
+
+func (l *Logger) isLogLevelActivated(level string) bool {
+	var isActivated bool
+	for _, v := range strings.Split(os.Getenv("LOG_LEVELS"), ",") {
+		if v == level {
+			isActivated = true
+		}
+	}
+	return isActivated
 }
 
 func (l *Logger) parseMessageInfo() (*time.Time, string) {
