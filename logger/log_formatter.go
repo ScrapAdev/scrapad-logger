@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
@@ -44,21 +45,38 @@ func (l *Logger) Trace(txt string) {
 	}
 }
 
-func (l *Logger) formatLogMessage(level, message string) string {
+type logMessage struct {
+	Service   string  `json:"service"`
+	Timestamp string  `json:"timestamp"`
+	Level     string  `json:"level"`
+	Request   string  `json:"request"`
+	Message   string  `json:"message"`
+	FilePath  *string `json:"filePath,omitempty"`
+	Method    *string `json:"method,omitempty"`
+}
+
+func (l *Logger) formatLogMessage(level, message string) {
 	l.initFrames()
 	timestamp, service := l.parseMessageInfo()
 
-	var logMessage string
-	if level == "trace" {
-		logMessage = fmt.Sprintf("%s:[%s] %s %s '%s'\n", service, timestamp.Format("2006-01-02 15:04:05"), strings.ToUpper(level), l.uuidRequest.String(), message)
-	} else {
-		logMessage = fmt.Sprintf("%s:[%s] %s %s '%s:%d %s' - %s\n", service, timestamp.Format("2006-01-02 15:04:05"), strings.ToUpper(level), l.uuidRequest.String(), l.frame.File, l.frame.Line, l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:], message)
+	logMessage := logMessage{
+		Service:   service,
+		Timestamp: timestamp.Format(time.RFC3339),
+		Level:     strings.ToUpper(level),
+		Request:   l.uuidRequest.String(),
+		Message:   message,
+	}
+	if level != "trace" {
+		filePath := fmt.Sprintf("%s:%d", l.frame.File, l.frame.Line)
+		method := l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:]
+
+		logMessage.FilePath = &filePath
+		logMessage.Method = &method
 	}
 
-	fmt.Println(logMessage)
-	l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), logMessage, level)
-
-	return logMessage
+	logMessageBytes, _ := json.Marshal(logMessage)
+	fmt.Println(string(logMessageBytes))
+	l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
 }
 
 func (l *Logger) isLogLevelActivated(level string) bool {

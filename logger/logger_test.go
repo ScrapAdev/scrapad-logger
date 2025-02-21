@@ -2,9 +2,9 @@ package logger
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,15 +27,22 @@ func TestLogger_FormatMessage(t *testing.T) {
 	assert.NoError(t, err)
 
 	logLevel := "debug"
-	logMessage := "Test log message"
+	message := "Test log message"
 
 	captured := captureStdout(func() {
-		logger.formatLogMessage(logLevel, logMessage)
+		logger.formatLogMessage(logLevel, message)
 	})
 
-	assert.Contains(t, captured, strings.ToUpper(logLevel))
-	assert.Contains(t, captured, uuidStr)
-	assert.Contains(t, captured, logMessage)
+	var gotMessage logMessage
+	_ = json.Unmarshal([]byte(captured), &gotMessage)
+
+	assert.Equal(t, gotMessage.Service, "scrapad-logger")
+	assert.Equal(t, gotMessage.Level, "DEBUG")
+	assert.Equal(t, gotMessage.Request, "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	assert.Equal(t, gotMessage.Message, "Test log message")
+
+	assert.Equal(t, *gotMessage.Method, "captureStdout")
+	assert.Contains(t, *gotMessage.FilePath, "scrapad-logger/logger/logger_test.go")
 }
 
 func TestLogger_FormatTraceMessage(t *testing.T) {
@@ -44,15 +51,21 @@ func TestLogger_FormatTraceMessage(t *testing.T) {
 	assert.NoError(t, err)
 
 	logLevel := "trace"
-	logMessage := "Test log message with trace"
+	message := "Test log message with trace"
 
 	captured := captureStdout(func() {
-		logger.formatLogMessage(logLevel, logMessage)
+		logger.formatLogMessage(logLevel, message)
 	})
 
-	assert.Contains(t, captured, strings.ToUpper(logLevel))
-	assert.Contains(t, captured, uuidStr)
-	assert.Contains(t, captured, logMessage)
+	var gotMessage logMessage
+	_ = json.Unmarshal([]byte(captured), &gotMessage)
+
+	assert.Equal(t, gotMessage.Service, "scrapad-logger")
+	assert.Equal(t, gotMessage.Level, "TRACE")
+	assert.Equal(t, gotMessage.Request, "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	assert.Equal(t, gotMessage.Message, "Test log message with trace")
+	assert.Nil(t, gotMessage.FilePath)
+	assert.Nil(t, gotMessage.Method)
 }
 
 func TestLogger_InitFrames(t *testing.T) {
