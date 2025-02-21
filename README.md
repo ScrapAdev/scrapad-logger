@@ -19,8 +19,16 @@ ScrapAd logger module, to send logs from Go to AWS CloudWatch API
 7. Message
 
 Example:
-```shell
-scrapad-microservice:[2023-01-16T12:42:29.148+01:00] INFO 8f7642f8-19ba-4683-bf5d-dfb095fd0b55 'main/example/go.go:100' MethodTest - message example
+```json
+{
+    "service": "scrapad-logger",
+    "timestamp": "2025-02-19T12:22:10Z",
+    "level": "DEBUG",
+    "request": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "message": "Test log message",
+    "filePath": "/home/aalmaran/repos/scrapad-logger/logger/logger_test.go:101",
+    "method": "captureStdout"
+}
 ```
 ### Trace
 1. Microservice name
@@ -29,6 +37,12 @@ scrapad-microservice:[2023-01-16T12:42:29.148+01:00] INFO 8f7642f8-19ba-4683-bf5
 4. RequestID
 5. Message
 
-```shell
-scrapad-microservice:[2023-01-16T12:42:29.148+01:00] TRACE 8f7642f8-19ba-4683-bf5d-dfb095fd0b55 '200 Mozilla/5.0 (Macintosh) 192.168.0.1'
+```json
+{
+    "service": "scrapad-logger",
+    "timestamp": "2025-02-19T12:23:46Z",
+    "level": "TRACE",
+    "request": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "message": "Test log message with trace"
+}
 ```

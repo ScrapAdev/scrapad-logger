@@ -19,7 +19,7 @@ type AWSCloudwatch struct {
 func NewAWSCloudwatch() (*AWSCloudwatch, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
-		return nil, fmt.Errorf("Error creating AWS config: %v", err)
+		return nil, fmt.Errorf("error creating AWS config: %v", err)
 	}
 
 	svc := cloudwatchlogs.NewFromConfig(cfg)
@@ -42,7 +42,7 @@ func (cloudwatch *AWSCloudwatch) PutLogEvent(timestamp int64, msg string, level 
 	}
 	_, err := cloudwatch.client.PutLogEvents(context.Background(), &params)
 	if err != nil {
-		return fmt.Errorf("Failed to send log request: %v", err)
+		return fmt.Errorf("failed to send log request: %v", err)
 	}
 	return nil
 }
