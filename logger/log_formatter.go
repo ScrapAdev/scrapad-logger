@@ -76,7 +76,7 @@ func (l *Logger) formatLogMessage(level, message string) {
 
 	logMessageBytes, _ := json.Marshal(logMessage)
 	fmt.Println(string(logMessageBytes))
-	l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
+	go l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
 }
 
 func (l *Logger) isLogLevelActivated(level string) bool {
