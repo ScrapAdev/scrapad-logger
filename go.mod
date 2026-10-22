@@ -1,6 +1,6 @@
 module github.com/ScrapAdev/scrapad-logger
 
-go 1.18
+go 1.26
 
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.8 // indirect
