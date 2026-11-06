@@ -83,7 +83,9 @@ func (l *Logger) formatLogMessage(level, message string) {
 	l.mu.Unlock()
 
 	fmt.Println(string(logMessageBytes))
-	go l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
+	go func() {
+		_ = l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
+	}()
 }
 
 func (l *Logger) isLogLevelActivated(level string) bool {
@@ -106,6 +108,7 @@ func (l *Logger) parseMessageInfo() (*time.Time, string) {
 	return timestamp, service
 }
 
+//nolint:unused // Kept for debugging purposes
 func (l *Logger) printCallStack() {
 	debug.PrintStack()
 	callers := make([]uintptr, CALLER_DEPTH)
