@@ -2,12 +2,14 @@ package logger
 
 import (
 	"runtime"
+	"sync"
 
 	"github.com/ScrapAdev/scrapad-logger/logger/helpers"
 	"github.com/google/uuid"
 )
 
 type Logger struct {
+	mu          sync.Mutex
 	cloudwatch  helpers.AWSCloudwatch
 	frames      *runtime.Frames
 	frame       runtime.Frame
@@ -40,5 +42,7 @@ func NewWithID(uuidRequest string) (*Logger, error) {
 }
 
 func (l *Logger) SetRequestID(uuid uuid.UUID) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	l.uuidRequest = uuid
 }
