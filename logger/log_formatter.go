@@ -56,6 +56,7 @@ type logMessage struct {
 }
 
 func (l *Logger) formatLogMessage(level, message string) {
+	l.mu.Lock()
 	l.initFrames()
 	timestamp, service := l.parseMessageInfo()
 
@@ -68,15 +69,23 @@ func (l *Logger) formatLogMessage(level, message string) {
 	}
 	if level != "trace" {
 		filePath := fmt.Sprintf("%s:%d", l.frame.File, l.frame.Line)
-		method := l.frame.Function[strings.LastIndex(l.frame.Function, ".")+1:]
+		lastDot := strings.LastIndex(l.frame.Function, ".")
+		method := l.frame.Function
+		if lastDot != -1 && lastDot+1 < len(l.frame.Function) {
+			method = l.frame.Function[lastDot+1:]
+		}
 
 		logMessage.FilePath = &filePath
 		logMessage.Method = &method
 	}
 
 	logMessageBytes, _ := json.Marshal(logMessage)
+	l.mu.Unlock()
+
 	fmt.Println(string(logMessageBytes))
-	go l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
+	go func() {
+		_ = l.cloudwatch.PutLogEvent(timestamp.UnixMilli(), string(logMessageBytes), level)
+	}()
 }
 
 func (l *Logger) isLogLevelActivated(level string) bool {
@@ -93,12 +102,13 @@ func (l *Logger) parseMessageInfo() (*time.Time, string) {
 	timestamp := aws.Time(time.Now().UTC())
 	service := "no-service"
 	repo := strings.Split(l.frame.Function, "/")
-	if len(repo) > 1 {
+	if len(repo) > 2 {
 		service = strings.Split(repo[2], ".")[0]
 	}
 	return timestamp, service
 }
 
+//nolint:unused // Kept for debugging purposes
 func (l *Logger) printCallStack() {
 	debug.PrintStack()
 	callers := make([]uintptr, CALLER_DEPTH)

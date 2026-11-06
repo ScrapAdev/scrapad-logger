@@ -93,6 +93,70 @@ func TestLogger_AllMethods(t *testing.T) {
 	logger.Trace("This is a trace message")
 }
 
+func TestLogger_ParseMessageInfo_ShortFunctionPaths(t *testing.T) {
+	logger, err := New()
+	assert.NoError(t, err)
+
+	tests := []struct {
+		name            string
+		functionName    string
+		expectedService string
+	}{
+		{
+			name:            "empty function",
+			functionName:    "",
+			expectedService: "no-service",
+		},
+		{
+			name:            "single part function (no slash)",
+			functionName:    "main.main",
+			expectedService: "no-service",
+		},
+		{
+			name:            "two parts function (single slash)",
+			functionName:    "command-line-arguments/server.(*grpcServer).GetTransactionPrices",
+			expectedService: "no-service",
+		},
+		{
+			name:            "standard three parts function",
+			functionName:    "github.com/ScrapAdev/scrapad-proxy/internal/handler.handleV2Request",
+			expectedService: "scrapad-proxy",
+		},
+		{
+			name:            "standard payments function",
+			functionName:    "github.com/ScrapAdev/scrapad-payment-service/app.(*grpcServer).GetTransactionPrices",
+			expectedService: "scrapad-payment-service",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			logger.frame.Function = tt.functionName
+			_, service := logger.parseMessageInfo()
+			assert.Equal(t, tt.expectedService, service)
+		})
+	}
+}
+
+func TestLogger_Concurrency(t *testing.T) {
+	logger, err := New()
+	assert.NoError(t, err)
+
+	const goroutines = 50
+	done := make(chan bool, goroutines)
+
+	for i := 0; i < goroutines; i++ {
+		go func(id int) {
+			logger.formatLogMessage("info", "concurrent test log")
+			done <- true
+		}(i)
+	}
+
+	for i := 0; i < goroutines; i++ {
+		<-done
+	}
+}
+
 func captureStdout(f func()) string {
 	old := os.Stdout
 	r, w, _ := os.Pipe()
@@ -100,12 +164,12 @@ func captureStdout(f func()) string {
 
 	f()
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
-	r.Close()
+	_, _ = io.Copy(&buf, r)
+	_ = r.Close()
 
 	return buf.String()
 }
